@@ -9,7 +9,7 @@ import fs from 'fs'
 
 const app = fastify()
 
-const staticDir = path.join(__dirname, 'tmp')
+const staticDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, 'tmp')
 
 if (!fs.existsSync(staticDir)) {
   fs.mkdirSync(staticDir, { recursive: true })
