@@ -10,7 +10,7 @@ import fs from 'fs'
 const app = fastify()
 
 // Configura o diretório temporário de acordo com o ambiente
-const staticDir = path.join(__dirname, 'tmp')
+const staticDir = env.NODE_ENV === 'production' ? '/opt/render/project/src/tmp' : path.join(__dirname, 'tmp')
 console.log("Diretório estático configurado para:", staticDir)
 
 // Garante que o diretório existe
@@ -21,7 +21,6 @@ if (!fs.existsSync(staticDir)) {
 // Configura o fastify-static para servir os arquivos do diretório correto
 app.register(fastifyStatic, {
   root: staticDir,
-  prefix: "/images",
 })
 
 app.register(fastifyCors, {
