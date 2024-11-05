@@ -43,7 +43,7 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
+      const tmpDir = path.join(__dirname, '../tmp')
       console.log("Salvando arquivos em:", tmpDir)
 
       if (!fs.existsSync(tmpDir)) {
