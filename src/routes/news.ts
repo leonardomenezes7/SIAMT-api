@@ -5,6 +5,7 @@ import fastifyMultipart from '@fastify/multipart'
 import { knex } from '../database'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
+import path from 'path'
 
 export async function newsRoutes(app: FastifyInstance) {
   app.register(fastifyMultipart, {
@@ -42,7 +43,9 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const filePath = join(__dirname, '..', '..', 'tmp', imageFileName)
+      const tmpDir = path.join(__dirname, '../../tmp')
+
+      const filePath = path.join(tmpDir, imageFileName)
 
       await writeFile(filePath, imageFileBuffer);
 
