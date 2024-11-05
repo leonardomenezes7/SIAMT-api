@@ -13,6 +13,10 @@ export async function newsRoutes(app: FastifyInstance) {
       fileSize: 10 * 1024 * 1024, //10mb
     },
   })
+
+  const baseUrl = process.env.NODE_ENV === 'production'
+  ? 'https://siamt-api.onrender.com/images'
+  : 'http://localhost:3333/images'
   
   app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
@@ -43,12 +47,11 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const tmpDir = path.join(__dirname, '../tmp')
-      console.log("Salvando arquivos em:", tmpDir)
+      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
 
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true })
-      } 
+      }
 
       const filePath = path.join(tmpDir, imageFileName)
       await fs.promises.writeFile(filePath, imageFileBuffer)
@@ -96,8 +99,6 @@ export async function newsRoutes(app: FastifyInstance) {
     const allNews = await knex("news")
       .orderBy("created_at", "desc")
       .select()
-
-    const baseUrl = process.env.NODE_ENV === 'production' ? 'https://siamt-api.onrender.com' : 'http://localhost:3333'
 
     const newsWithImages = allNews.map(news => ({
       ...news,
