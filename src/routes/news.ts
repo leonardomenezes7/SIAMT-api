@@ -13,10 +13,6 @@ export async function newsRoutes(app: FastifyInstance) {
       fileSize: 10 * 1024 * 1024, //10mb
     },
   })
-
-  const baseUrl = process.env.NODE_ENV === 'production'
-  ? 'https://siamt-api.onrender.com/images'
-  : 'http://localhost:3333/images'
   
   app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
@@ -99,6 +95,10 @@ export async function newsRoutes(app: FastifyInstance) {
     const allNews = await knex("news")
       .orderBy("created_at", "desc")
       .select()
+
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? 'https://siamt-api.onrender.com/uploads' // prefixo do fastify-static
+      : 'http://localhost:3333/uploads'
 
     const newsWithImages = allNews.map(news => ({
       ...news,

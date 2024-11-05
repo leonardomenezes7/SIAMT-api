@@ -9,18 +9,16 @@ import fs from 'fs'
 
 const app = fastify()
 
-const staticDir = env.NODE_ENV === 'production'
-  ? path.join(__dirname, 'tmp')
-  : path.join(__dirname, 'tmp')
+const staticDir = path.resolve(__dirname, 'tmp')
+console.log("Diretório estático configurado para:", staticDir)
 
-// Garante que o diretório existe
 if (!fs.existsSync(staticDir)) {
   fs.mkdirSync(staticDir, { recursive: true })
 }
 
 app.register(fastifyStatic, {
   root: staticDir,
-  prefix: '/images/',
+  prefix: '/uploads/',
 })
 
 app.register(fastifyCors, {
