@@ -1,11 +1,12 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { writeFile } from 'fs/promises'
-import { join } from 'path'
 import fastifyMultipart from '@fastify/multipart'
 import { knex } from '../database'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import path from 'path'
+import { env } from '../env'
+import fs from 'fs'
 
 export async function newsRoutes(app: FastifyInstance) {
   app.register(fastifyMultipart, {
@@ -43,9 +44,16 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const filePath = path.join(__dirname, "../tmp", imageFileName)
+      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
 
-      await writeFile(filePath, imageFileBuffer);
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true })
+      }
+
+      const filePath = path.join(tmpDir, imageFileName)
+
+      await fs.promises.writeFile(filePath, imageFileBuffer)
+      console.log(`Arquivo salvo em: ${filePath}`)
 
       await knex("news").insert({
         id: randomUUID(),
