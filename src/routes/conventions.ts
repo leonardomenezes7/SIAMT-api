@@ -1,10 +1,11 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import path from 'path'
 import { knex } from '../database'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import fastifyMultipart from '@fastify/multipart'
+import { env } from '../env'
+import fs from "fs"
 
 export async function conventionsRoutes(app: FastifyInstance) {
   app.register(fastifyMultipart, {
@@ -40,9 +41,16 @@ export async function conventionsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const filePath = join(__dirname, '..', '..', 'tmp', FileName)
+      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
 
-      await writeFile(filePath, FileBuffer);
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true })
+      }
+
+      const filePath = path.join(tmpDir, FileName)
+
+      await fs.promises.writeFile(filePath, FileBuffer)
+      console.log(`Arquivo salvo em: ${filePath}`)
 
       await knex("conventions").insert({
         id: randomUUID(),
