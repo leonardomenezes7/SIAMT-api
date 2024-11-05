@@ -1,11 +1,9 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { writeFile } from 'fs/promises'
 import fastifyMultipart from '@fastify/multipart'
 import { knex } from '../database'
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import path from 'path'
-import { env } from '../env'
 import fs from 'fs'
 
 export async function newsRoutes(app: FastifyInstance) {
@@ -44,7 +42,8 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
+      const tmpDir = path.join(__dirname, '../tmp')
+      console.log("Salvando arquivos em:", tmpDir)
 
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true })
@@ -98,9 +97,11 @@ export async function newsRoutes(app: FastifyInstance) {
       .orderBy("created_at", "desc")
       .select()
 
+    const baseUrl = process.env.NODE_ENV === 'production' ? 'https://siamt-api.onrender.com' : 'http://localhost:3333'
+
     const newsWithImages = allNews.map(news => ({
       ...news,
-      imageUrl: `https://siamt-api.onrender.com/images/${news.image}`
+      imageUrl: `${baseUrl}/images/${news.image}`
     }))
   
     return reply.send({ allNews: newsWithImages })
