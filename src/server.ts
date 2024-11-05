@@ -7,13 +7,13 @@ import fastifyStatic from "@fastify/static"
 import path from "path"
 import fs from 'fs'
 
+const app = fastify()
+
 const staticDir = path.join(__dirname, 'tmp')
 
 if (!fs.existsSync(staticDir)) {
   fs.mkdirSync(staticDir, { recursive: true })
 }
-
-const app = fastify()
 
 app.register(fastifyStatic, {
   root: staticDir,
