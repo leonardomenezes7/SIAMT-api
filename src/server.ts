@@ -10,7 +10,7 @@ import fs from 'fs'
 const app = fastify()
 
 const staticDir = env.NODE_ENV === 'production'
-  ? path.join(__dirname, '../tmp') // volta um nível, saindo de `build` para `src`
+  ? path.join(__dirname, '../tmp')
   : path.join(__dirname, 'tmp')
 console.log("Diretório estático configurado para:", staticDir)
 

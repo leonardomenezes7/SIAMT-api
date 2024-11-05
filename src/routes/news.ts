@@ -43,7 +43,10 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
+      // Ajusta o caminho para `../tmp` no ambiente de produção
+      const tmpDir = env.NODE_ENV === 'production'
+        ? path.join(__dirname, '../tmp')
+        : path.join(__dirname, 'tmp')
 
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true })
@@ -97,7 +100,7 @@ export async function newsRoutes(app: FastifyInstance) {
       .select()
 
     const baseUrl = process.env.NODE_ENV === 'production'
-      ? 'https://siamt-api.onrender.com/uploads' // prefixo do fastify-static
+      ? 'https://siamt-api.onrender.com/uploads' // novo prefixo
       : 'http://localhost:3333/uploads'
 
     const newsWithImages = allNews.map(news => ({
