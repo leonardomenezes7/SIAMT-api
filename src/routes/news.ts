@@ -100,7 +100,7 @@ export async function newsRoutes(app: FastifyInstance) {
 
     const newsWithImages = allNews.map(news => ({
       ...news,
-      imageUrl: `http://localhost:3333/images/${news.image}`
+      imageUrl: `https://siamt-api.onrender.com/images/${news.image}`
     }))
   
     return reply.send({ allNews: newsWithImages })
