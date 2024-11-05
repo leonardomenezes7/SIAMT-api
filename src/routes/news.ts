@@ -43,8 +43,9 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      // Ajusta o caminho para `../tmp` no ambiente de produção
-      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
+      const tmpDir = env.NODE_ENV === 'production'
+        ? path.join(__dirname, 'tmp') // Aponta para `build/tmp` em produção
+        : path.join(__dirname, 'tmp')
       
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true })
