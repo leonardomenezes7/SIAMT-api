@@ -43,9 +43,7 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const tmpDir = path.join(__dirname, '../tmp')
-
-      const filePath = path.join(tmpDir, imageFileName)
+      const filePath = path.join(__dirname, "../tmp", imageFileName)
 
       await writeFile(filePath, imageFileBuffer);
 
