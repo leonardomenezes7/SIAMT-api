@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import path from 'path'
 import fs from 'fs'
+import { env } from '../env'
 
 export async function newsRoutes(app: FastifyInstance) {
   app.register(fastifyMultipart, {
@@ -42,15 +43,14 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Image is required' })
       }
 
-      const tmpDir = path.join(__dirname, '../tmp')
+      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
       console.log("Salvando arquivos em:", tmpDir)
 
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true })
-      }
+      } 
 
       const filePath = path.join(tmpDir, imageFileName)
-
       await fs.promises.writeFile(filePath, imageFileBuffer)
       console.log(`Arquivo salvo em: ${filePath}`)
 
