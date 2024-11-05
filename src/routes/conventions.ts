@@ -69,12 +69,21 @@ export async function conventionsRoutes(app: FastifyInstance) {
     }
   })
 
-  app.get("/", async () => {
+  app.get("/", async (request, reply) => {
     const conventions = await knex("conventions")
       .orderBy("year", "desc")
       .select()
 
-    return { conventions }
+    const baseUrl = env.NODE_ENV === 'production'
+      ? 'https://siamt-api.onrender.com/uploads' // Prefixo configurado no fastify-static
+      : 'http://localhost:3333/uploads'
+
+    const conventionsWithFiles = conventions.map(convention => ({
+      ...convention,
+      fileUrl: `${baseUrl}/${convention.file}`
+    }))
+  
+    return reply.send({ conventions: conventionsWithFiles })
   })
 
   app.delete("/:id", async (request, reply) => {
