@@ -71,6 +71,7 @@ export async function conventionsRoutes(app: FastifyInstance) {
 
   app.get("/", async () => {
     const conventions = await knex("conventions")
+      .orderBy("year", "desc")
       .select()
 
     return { conventions }
