@@ -15,7 +15,7 @@ if (!fs.existsSync(tmpDir)) {
 
 const app = fastify()
 
-const staticDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '/tmp')
+const staticDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, "src", "/tmp")
 
 app.register(fastifyStatic, {
   root: staticDir,
