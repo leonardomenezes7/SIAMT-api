@@ -102,8 +102,6 @@ export async function newsRoutes(app: FastifyInstance) {
       ...news,
       imageUrl: `https://siamt-api.onrender.com/images/${news.image}`
     }))
-
-    console.log(newsWithImages)
   
     return reply.send({ allNews: newsWithImages })
   })

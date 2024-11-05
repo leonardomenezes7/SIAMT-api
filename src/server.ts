@@ -19,7 +19,7 @@ const staticDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, 
 
 app.register(fastifyStatic, {
   root: staticDir,
-  prefix: "/images"
+  prefix: "/images/"
 })
 
 app.register(fastifyCors, {
