@@ -10,7 +10,7 @@ import fs from "fs"
 export async function conventionsRoutes(app: FastifyInstance) {
   app.register(fastifyMultipart, {
     limits: {
-      fileSize: 10 * 1024 * 1024, //10mb
+      fileSize: 10 * 1024 * 1024, //10 mb
     },
   })
 
