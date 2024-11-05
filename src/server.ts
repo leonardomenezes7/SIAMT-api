@@ -5,6 +5,13 @@ import { conventionsRoutes } from "./routes/conventions"
 import fastifyCors from "@fastify/cors"
 import fastifyStatic from "@fastify/static"
 import path from "path"
+import fs from 'fs'
+
+const tmpDir = path.join(__dirname, '../tmp')
+
+if (!fs.existsSync(tmpDir)) {
+  fs.mkdirSync(tmpDir, { recursive: true })
+}
 
 const app = fastify()
 
