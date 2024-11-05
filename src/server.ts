@@ -7,7 +7,7 @@ import fastifyStatic from "@fastify/static"
 import path from "path"
 import fs from 'fs'
 
-const tmpDir = path.join(__dirname, '../tmp')
+const tmpDir = path.join(__dirname, 'tmp')
 
 if (!fs.existsSync(tmpDir)) {
   fs.mkdirSync(tmpDir, { recursive: true })
@@ -16,7 +16,7 @@ if (!fs.existsSync(tmpDir)) {
 const app = fastify()
 
 app.register(fastifyStatic, {
-  root: path.join(__dirname, "../tmp"),
+  root: path.join(__dirname, "tmp"),
   prefix: "/images"
 })
 
