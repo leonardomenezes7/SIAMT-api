@@ -99,8 +99,8 @@ export async function newsRoutes(app: FastifyInstance) {
       .orderBy("created_at", "desc")
       .select()
 
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? 'https://siamt-api.onrender.com/uploads' // novo prefixo
+    const baseUrl = env.NODE_ENV === 'production'
+      ? 'https://siamt-api.onrender.com/uploads' // Prefixo configurado no fastify-static
       : 'http://localhost:3333/uploads'
 
     const newsWithImages = allNews.map(news => ({
