@@ -9,9 +9,8 @@ import fs from 'fs'
 
 const app = fastify()
 
-const staticDir = path.resolve(__dirname, "build", 'tmp') // Caminho absoluto
+const staticDir = path.resolve(__dirname, 'tmp') // Caminho absoluto
 console.log("Diretório estático configurado para:", staticDir)
-
 
 if (!fs.existsSync(staticDir)) {
   fs.mkdirSync(staticDir, { recursive: true })

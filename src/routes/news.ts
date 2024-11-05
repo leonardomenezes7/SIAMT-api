@@ -44,10 +44,8 @@ export async function newsRoutes(app: FastifyInstance) {
       }
 
       // Ajusta o caminho para `../tmp` no ambiente de produção
-      const tmpDir = env.NODE_ENV === 'production'
-        ? path.join(__dirname, '../tmp')
-        : path.join(__dirname, 'tmp')
-
+      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
+      
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true })
       }
