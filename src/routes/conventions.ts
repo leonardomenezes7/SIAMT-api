@@ -70,27 +70,20 @@ export async function conventionsRoutes(app: FastifyInstance) {
   })
 
   app.get("/", async (request, reply) => {
-    try {
-      const conventions = await knex("conventions")
-        .orderBy("year", "desc")
-        .select()
+    const conventions = await knex("conventions")
+      .orderBy("year", "desc")
+      .select()
+
+    const baseUrl = env.NODE_ENV === 'production'
+      ? 'https://siamt-api.onrender.com/uploads' // Prefixo configurado no fastify-static
+      : 'http://localhost:3333/uploads'
+
+    const conventionsWithFiles = conventions.map(convention => ({
+      ...convention,
+      fileUrl: `${baseUrl}/${convention.file}`
+    }))
   
-      const baseUrl = env.NODE_ENV === 'production'
-        ? 'https://siamt-api.onrender.com/uploads' // Verifique se o URL corresponde ao local onde os arquivos estão realmente servidos
-        : 'http://localhost:3333/uploads'
-  
-      // Mapear convenções com URLs de arquivo
-      const conventionsWithFiles = conventions.map(convention => ({
-        ...convention,
-        fileUrl: `${baseUrl}/${convention.file}`
-      }))
-  
-      reply.header('Content-Type', 'application/json')
-      return reply.send({ conventions: conventionsWithFiles })
-    } catch (error) {
-      console.error("Erro ao buscar convenções:", error)
-      return reply.status(500).send({ message: "Erro ao buscar convenções" })
-    }
+    return reply.send({ conventions: conventionsWithFiles })
   })
 
   app.delete("/:id", async (request, reply) => {
