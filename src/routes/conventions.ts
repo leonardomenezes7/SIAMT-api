@@ -82,6 +82,8 @@ export async function conventionsRoutes(app: FastifyInstance) {
       ...convention,
       fileUrl: `${baseUrl}/${convention.file}`
     }))
+
+    reply.header('Content-Type', 'application/pdf')
   
     return reply.send({ conventions: conventionsWithFiles })
   })
