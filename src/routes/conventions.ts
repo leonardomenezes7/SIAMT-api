@@ -10,10 +10,17 @@ import fs from "fs"
 export async function conventionsRoutes(app: FastifyInstance) {
   app.register(fastifyMultipart, {
     limits: {
-      fileSize: 10 * 1024 * 1024, //10 mb
+      fileSize: 10 * 1024 * 1024, // 10MB
     },
   })
 
+  // Configurar Fastify Static para servir arquivos corretamente
+  app.register(require('@fastify/static'), {
+    root: path.join(__dirname, '../public/uploads'),
+    prefix: '/uploads/',
+  })
+
+  // Rota para Upload
   app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       let name = ''
@@ -38,18 +45,19 @@ export async function conventionsRoutes(app: FastifyInstance) {
       }
 
       if (!FileBuffer) {
-        return reply.status(400).send({ message: 'Image is required' })
+        return reply.status(400).send({ message: 'File is required' })
       }
 
-      const tmpDir = env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../tmp')
+      // Salvar na pasta "public/uploads"
+      const uploadDir = path.join(__dirname, "../public/uploads")
 
-      if (!fs.existsSync(tmpDir)) {
-        fs.mkdirSync(tmpDir, { recursive: true })
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true })
       }
 
-      const filePath = path.join(tmpDir, FileName)
-
+      const filePath = path.join(uploadDir, FileName)
       await fs.promises.writeFile(filePath, FileBuffer)
+
       console.log(`Arquivo salvo em: ${filePath}`)
 
       await knex("conventions").insert({
@@ -69,13 +77,14 @@ export async function conventionsRoutes(app: FastifyInstance) {
     }
   })
 
+  // Rota para Listar Convenções
   app.get("/", async (request, reply) => {
     const conventions = await knex("conventions")
       .orderBy("year", "desc")
       .select()
 
     const baseUrl = env.NODE_ENV === 'production'
-      ? 'https://siamt-api.onrender.com/uploads' // Prefixo configurado no fastify-static
+      ? 'https://siamt-api.onrender.com/uploads'
       : 'http://localhost:3333/uploads'
 
     const conventionsWithFiles = conventions.map(convention => ({
@@ -86,12 +95,25 @@ export async function conventionsRoutes(app: FastifyInstance) {
     return reply.send({ conventions: conventionsWithFiles })
   })
 
+  // Rota para Deletar Convenções
   app.delete("/:id", async (request, reply) => {
     const paramsSchema = z.object({
       id: z.string().uuid()
     })
 
     const { id } = paramsSchema.parse(request.params)
+
+    const convention = await knex("conventions").where({ id }).first()
+    
+    if (!convention) {
+      return reply.status(404).send({ message: "Convenção não encontrada!" })
+    }
+
+    const filePath = path.join(__dirname, "../public/uploads", convention.file)
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath) // Excluir o arquivo do servidor
+    }
 
     await knex("conventions").where({ id }).delete()
 
