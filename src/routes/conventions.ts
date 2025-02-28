@@ -38,39 +38,44 @@ export async function conventionsRoutes(app: FastifyInstance) {
       let year = ''
       let FileBuffer: Buffer | null = null
       let FileName = ''
-
+  
       const parts = request.parts()
-
+  
       for await (const part of parts) {
         if (part.type === 'file') {
           FileBuffer = await part.toBuffer()
           FileName = `${Date.now()}-${part.filename}`
+          console.log(`Recebendo arquivo: ${FileName}`) // Log para depuração
         } else if (part.type === 'field') {
           if (part.fieldname === 'name') name = part.value as string
           if (part.fieldname === 'year') year = part.value as string
         }
       }
-
+  
       if (!name || !year) {
+        console.log('Erro: Campos obrigatórios faltando')
         return reply.status(400).send({ message: 'Missing required fields' })
       }
-
+  
       if (!FileBuffer) {
+        console.log('Erro: Nenhum arquivo foi enviado')
         return reply.status(400).send({ message: 'File is required' })
       }
-
+  
       const filePath = path.join(uploadDir, FileName)
+      console.log(`Salvando arquivo em: ${filePath}`) // Log antes de salvar
+  
       await fs.promises.writeFile(filePath, FileBuffer)
-
-      console.log(`Arquivo salvo em: ${filePath}`)
-
+  
+      console.log(`Arquivo salvo com sucesso em: ${filePath}`)
+  
       await knex("conventions").insert({
         id: randomUUID(),
         name,
         year,
         file: FileName
       })
-
+  
       return reply.status(201).send({ message: 'Arquivo enviado com sucesso!' })
     } catch (error) {
       console.error('Erro durante o upload:', error)
@@ -106,34 +111,34 @@ export async function conventionsRoutes(app: FastifyInstance) {
 
   // 🔹 Rota para Download de Arquivos PDF
   app.get('/download/:fileName', async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const paramsSchema = z.object({
-        fileName: z.string()
-      })
-  
-      const { fileName } = paramsSchema.parse(request.params)
-  
-      const filePath = path.join(uploadDir, fileName)
-  
-      if (!fs.existsSync(filePath)) {
-        return reply.status(404).send({ message: 'Arquivo não encontrado' })
-      }
-  
-      // Configurar headers corretos para download
-      reply.header('Content-Type', 'application/pdf')
-      reply.header('Content-Disposition', `attachment; filename="${fileName}"`)
-      reply.header('Content-Transfer-Encoding', 'binary')
-      reply.header('Accept-Ranges', 'bytes')
-  
-      // Retornar arquivo como stream para evitar corrupção
-      const fileStream = fs.createReadStream(filePath)
-      return reply.send(fileStream)
-  
-    } catch (error) {
-      console.error('Erro ao baixar arquivo:', error)
-      return reply.status(500).send({ message: 'Erro ao baixar o arquivo' })
+  try {
+    const paramsSchema = z.object({
+      fileName: z.string()
+    })
+
+    const { fileName } = paramsSchema.parse(request.params)
+
+    const filePath = path.join(uploadDir, fileName)
+
+    if (!fs.existsSync(filePath)) {
+      return reply.status(404).send({ message: 'Arquivo não encontrado' })
     }
-  })
+
+    // Configurar headers corretos para download
+    reply.header('Content-Type', 'application/pdf')
+    reply.header('Content-Disposition', `attachment; filename="${fileName}"`)
+    reply.header('Content-Transfer-Encoding', 'binary')
+    reply.header('Accept-Ranges', 'bytes')
+
+    // Retornar arquivo como stream para evitar corrupção
+    const fileStream = fs.createReadStream(filePath)
+    return reply.send(fileStream)
+
+  } catch (error) {
+    console.error('Erro ao baixar arquivo:', error)
+    return reply.status(500).send({ message: 'Erro ao baixar o arquivo' })
+  }
+})
   // 🔹 Rota para Deletar Convenções
   app.delete("/:id", async (request, reply) => {
     try {
