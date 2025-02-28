@@ -9,9 +9,6 @@ import fs from 'fs'
 
 const app = fastify()
 
-app.register(fastifyCors, {
-  origin: '*' // Configure conforme sua necessidade
-})
 
 const staticDir = path.join(__dirname, 'tmp')
 console.log("Diretório estático configurado para:", staticDir)
