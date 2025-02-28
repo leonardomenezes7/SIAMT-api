@@ -110,6 +110,7 @@ export async function conventionsRoutes(app: FastifyInstance) {
   })
 
   // 🔹 Rota para Download de Arquivos PDF
+  // 🔹 Rota para Download de Arquivos PDF (Corrigida)
   app.get('/download/:fileName', async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const paramsSchema = z.object({
@@ -118,21 +119,24 @@ export async function conventionsRoutes(app: FastifyInstance) {
 
     const { fileName } = paramsSchema.parse(request.params)
 
-    const filePath = path.join(uploadDir, fileName)
+    // Garante que o nome do arquivo não tenha caracteres inválidos
+    const safeFileName = fileName.replace(/[^\w\-. ()]/g, '') 
+    const filePath = path.join(uploadDir, safeFileName)
 
     if (!fs.existsSync(filePath)) {
       return reply.status(404).send({ message: 'Arquivo não encontrado' })
     }
 
-    // Configurar headers corretos para download
-    reply.header('Content-Type', 'application/pdf')
-    reply.header('Content-Disposition', `attachment; filename="${fileName}"`)
-    reply.header('Content-Transfer-Encoding', 'binary')
-    reply.header('Accept-Ranges', 'bytes')
+    // Configura headers corretos para download
+    reply
+      .header('Content-Type', 'application/pdf')
+      .header('Content-Disposition', `attachment; filename="${safeFileName}"`)
+      .header('Content-Length', fs.statSync(filePath).size) // Define tamanho do arquivo
+      .header('Accept-Ranges', 'bytes') // Permite downloads parciais
+      .header('Cache-Control', 'no-store') // Evita cache incorreto
 
-    // Retornar arquivo como stream para evitar corrupção
-    const fileStream = fs.createReadStream(filePath)
-    return reply.send(fileStream)
+    // Retorna o arquivo como stream
+    return reply.send(fs.createReadStream(filePath))
 
   } catch (error) {
     console.error('Erro ao baixar arquivo:', error)
