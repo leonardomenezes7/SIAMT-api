@@ -110,27 +110,30 @@ export async function conventionsRoutes(app: FastifyInstance) {
       const paramsSchema = z.object({
         fileName: z.string()
       })
-
+  
       const { fileName } = paramsSchema.parse(request.params)
-
+  
       const filePath = path.join(uploadDir, fileName)
-
+  
       if (!fs.existsSync(filePath)) {
         return reply.status(404).send({ message: 'Arquivo não encontrado' })
       }
-
+  
+      // Configurar headers corretos para download
       reply.header('Content-Type', 'application/pdf')
       reply.header('Content-Disposition', `attachment; filename="${fileName}"`)
-
+      reply.header('Content-Transfer-Encoding', 'binary')
+      reply.header('Accept-Ranges', 'bytes')
+  
+      // Retornar arquivo como stream para evitar corrupção
       const fileStream = fs.createReadStream(filePath)
       return reply.send(fileStream)
-
+  
     } catch (error) {
       console.error('Erro ao baixar arquivo:', error)
       return reply.status(500).send({ message: 'Erro ao baixar o arquivo' })
     }
   })
-
   // 🔹 Rota para Deletar Convenções
   app.delete("/:id", async (request, reply) => {
     try {
